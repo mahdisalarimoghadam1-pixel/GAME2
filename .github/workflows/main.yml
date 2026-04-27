@@ -1,0 +1,47 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Flutter APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        [cite_start]uses: actions/checkout@v4 [cite: 1]
+
+      - name: Setup Java 17
+        [cite_start]uses: actions/setup-java@v4 [cite: 1]
+        with:
+          [cite_start]distribution: 'temurin' [cite: 2]
+          [cite_start]java-version: '17' [cite: 2]
+
+      - name: Setup Flutter
+        [cite_start]uses: subosito/flutter-action@v2 [cite: 2]
+        with:
+          [cite_start]flutter-version: '3.19.0' [cite: 2]
+          [cite_start]channel: 'stable' [cite: 2]
+          [cite_start]cache: true [cite: 2]
+
+      - name: Get dependencies
+        [cite_start]run: flutter pub get [cite: 2]
+
+      - name: Analyze code
+        [cite_start]run: flutter analyze --no-fatal-warnings [cite: 2]
+        [cite_start]continue-on-error: true [cite: 2]
+
+      - name: Build APK (Release)
+        [cite_start]run: flutter build apk --release --no-shrink [cite: 2]
+
+      - name: Upload APK artifact
+        [cite_start]uses: actions/upload-artifact@v4 [cite: 2]
+        with:
+          [cite_start]name: match-masters-apk [cite: 2]
+          [cite_start]path: build/app/outputs/flutter-apk/app-release.apk [cite: 2]
+          [cite_start]retention-days: 30 [cite: 2]
